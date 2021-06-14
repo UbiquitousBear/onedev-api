@@ -75,7 +75,7 @@ func (c *Client) UpdateProject(project Project) (*Project, error) {
 	if err != nil {
 		return nil,err
 	}
-	_, err = c.httpRequest(fmt.Sprintf("projects/%d", project.Id), "PUT", buf)
+	_, err = c.httpRequest(fmt.Sprintf("projects/%d", project.Id), "POST", buf)
 	if err != nil {
 		return nil,err
 	}
