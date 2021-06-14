@@ -17,8 +17,6 @@ type Project struct {
 	IssueManagementEnabled bool   `json:"issueManagementEnabled"`
 }
 
-
-
 func (c *Client) GetAllProjects() (*map[string]Project, error) {
 	body, err := c.httpRequest("projects?offset=0&count=100", "GET", bytes.Buffer{})
 	if err != nil {
@@ -73,11 +71,11 @@ func (c *Client) UpdateProject(project Project) (*Project, error) {
 	buf := bytes.Buffer{}
 	err := json.NewEncoder(&buf).Encode(project)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	_, err = c.httpRequest(fmt.Sprintf("projects/%d", project.Id), "POST", buf)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	return &project, nil
 }

@@ -130,7 +130,7 @@ func (c *Client) UpdateProjectSetting(id int, setting ProjectSetting) (*ProjectS
 
 	_, err = c.httpRequest(fmt.Sprintf("projects/%d/setting", id), "POST", buf)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	return &setting, nil
