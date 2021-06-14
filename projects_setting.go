@@ -9,98 +9,113 @@ import (
 )
 
 type ProjectSetting struct {
-	BranchProtections  []ProjectSettingBranchProtection
-	TagProtections     []ProjectSettingTagProtection
-	IssueSetting       ProjectSettingIssueSetting
-	PullRequestSetting ProjectSettingPullRequestSetting
-	//NamedCommitQueries
-	//NamedCodeCommentQueries
-	//WebHooks
+	BranchProtections       []BranchProtections       `json:"branchProtections"`
+	TagProtections          []TagProtections          `json:"tagProtections"`
+	IssueSetting            IssueSetting              `json:"issueSetting"`
+	BuildSetting            BuildSetting              `json:"buildSetting"`
+	PullRequestSetting      PullRequestSetting        `json:"pullRequestSetting"`
+	NamedCommitQueries      []NamedCommitQueries      `json:"namedCommitQueries"`
+	NamedCodeCommentQueries []NamedCodeCommentQueries `json:"namedCodeCommentQueries"`
+	WebHooks                []WebHooks                `json:"webHooks"`
 }
 
-type ProjectSettingBranchProtection struct {
-	Enabled           bool                                           `json:"enabled"`
-	Branches          string                                         `json:"branches"`
-	UserMatch         string                                         `json:"userMatch"`
-	PreventForcedPush bool                                           `json:"preventForcedPush"`
-	PreventDeletion   bool                                           `json:"preventDeletion"`
-	PreventCreation   bool                                           `json:"preventCreation"`
-	JobNames          []string                                       `json:"jobNames"`
-	FileProtections   []ProjectSettingBranchProtectionFileProtection `json:"fileProtections"`
-}
-
-type ProjectSettingBranchProtectionFileProtection struct {
+type FileProtections struct {
 	Paths             string   `json:"paths"`
 	ReviewRequirement string   `json:"reviewRequirement"`
 	JobNames          []string `json:"jobNames"`
 }
 
-type ProjectSettingTagProtection struct {
-	Enabled           bool   `json:"enabled"`
-	Tags              string `json:"tags"`
-	UserMatch         string `json:"userMatch"`
-	PreventForcedPush bool   `json:"preventForcedPush"`
-	PreventDeletion   bool   `json:"preventDeletion"`
-	PreventCreation   bool   `json:"preventCreation"`
+type BranchProtections struct {
+	Enabled           bool              `json:"enabled"`
+	Branches          string            `json:"branches"`
+	UserMatch         string            `json:"userMatch"`
+	PreventForcedPush bool              `json:"preventForcedPush"`
+	PreventDeletion   bool              `json:"preventDeletion"`
+	PreventCreation   bool              `json:"preventCreation"`
+	ReviewRequirement string            `json:"reviewRequirement"`
+	JobNames          []string          `json:"jobNames"`
+	FileProtections   []FileProtections `json:"fileProtections"`
 }
 
-type ProjectSettingIssueSetting struct {
-	ListFields   []string                               `json:"name"`
-	BoardSpecs   []ProjectSettingIssueSettingBoardSpec  `json:"boardSpecs"`
-	NamedQueries []ProjectSettingIssueSettingNamedQuery `json:"namedQueries"`
+type TagProtections struct {
+	Enabled         bool   `json:"enabled"`
+	Tags            string `json:"tags"`
+	UserMatch       string `json:"userMatch"`
+	PreventUpdate   bool   `json:"preventUpdate"`
+	PreventDeletion bool   `json:"preventDeletion"`
+	PreventCreation bool   `json:"preventCreation"`
 }
 
-type ProjectSettingIssueSettingBoardSpec struct {
+type BoardSpecs struct {
 	Name             string   `json:"name"`
 	BaseQuery        string   `json:"baseQuery"`
-	BacklogBaseQuery string   `json:"backlogBaseQuert"`
+	BacklogBaseQuery string   `json:"backlogBaseQuery"`
 	IdentifyField    string   `json:"identifyField"`
 	Columns          []string `json:"columns"`
-	DisplayFields    []string `json:"displayField"`
+	DisplayFields    []string `json:"displayFields"`
 	EditColumns      []string `json:"editColumns"`
 }
 
-type ProjectSettingIssueSettingNamedQuery struct {
+type NamedQueries struct {
 	Name  string `json:"name"`
 	Query string `json:"query"`
 }
 
-type ProjectSettingBuildSetting struct {
-	ListParams               []string                                            `json:"listParams"`
-	NamedQueries             []ProjectSettingBuildSettingNamedQuery              `json:"namedQueries"`
-	JobSecrets               []ProjectSettingBuildSettingJobSecret               `json:"jobSecrets"`
-	BuildPreservations       ProjectSettingBuildSettingBuildPreservation         `json:"buildPreservations"`
-	DefaultFixedIssueFilters []ProjectSettingBuildSettingDefaultFixedIssueFilter `json:"defaultFixedIssueFilters"`
+type IssueSetting struct {
+	ListFields   []string       `json:"listFields"`
+	BoardSpecs   []BoardSpecs   `json:"boardSpecs"`
+	NamedQueries []NamedQueries `json:"namedQueries"`
 }
 
-type ProjectSettingBuildSettingNamedQuery struct {
-	Name  string `json:"name"`
-	Query string `json:"query"`
-}
-
-type ProjectSettingBuildSettingJobSecret struct {
+type JobSecrets struct {
 	Name               string `json:"name"`
 	Value              string `json:"value"`
 	AuthorizedBranches string `json:"authorizedBranches"`
 }
 
-type ProjectSettingBuildSettingBuildPreservation struct {
+type BuildPreservations struct {
 	Condition string `json:"condition"`
 	Count     int    `json:"count"`
 }
 
-type ProjectSettingBuildSettingDefaultFixedIssueFilter struct {
+type ActionAuthorizations struct {
+	Type               string `json:"@type"`
+	MilestoneNames     string `json:"milestoneNames"`
+	AuthorizedBranches string `json:"authorizedBranches"`
+}
+
+type DefaultFixedIssueFilters struct {
 	JobNames   string `json:"jobNames"`
 	IssueQuery string `json:"issueQuery"`
 }
 
-type ProjectSettingPullRequestSetting struct {
-	NamedQueries []ProjectSettingPullRequestSettingNamedQueries `json:"namedQueries"`
+type BuildSetting struct {
+	ListParams               []string                   `json:"listParams"`
+	NamedQueries             []NamedQueries             `json:"namedQueries"`
+	JobSecrets               []JobSecrets               `json:"jobSecrets"`
+	BuildPreservations       []BuildPreservations       `json:"buildPreservations"`
+	ActionAuthorizations     []ActionAuthorizations     `json:"actionAuthorizations"`
+	DefaultFixedIssueFilters []DefaultFixedIssueFilters `json:"defaultFixedIssueFilters"`
 }
 
-type ProjectSettingPullRequestSettingNamedQueries struct {
+type PullRequestSetting struct {
+	NamedQueries []NamedQueries `json:"namedQueries"`
+}
+
+type NamedCommitQueries struct {
 	Name  string `json:"name"`
 	Query string `json:"query"`
+}
+
+type NamedCodeCommentQueries struct {
+	Name  string `json:"name"`
+	Query string `json:"query"`
+}
+
+type WebHooks struct {
+	PostURL    string   `json:"postUrl"`
+	EventTypes []string `json:"eventTypes"`
+	Secret     string   `json:"secret"`
 }
 
 func (c *Client) GetSettingForProjectId(id int) (*ProjectSetting, error) {
