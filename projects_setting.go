@@ -1,10 +1,21 @@
 package onedev_api
 
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"log"
+)
+
 type ProjectSetting struct {
 	BranchProtections  []ProjectSettingBranchProtection
 	TagProtections     []ProjectSettingTagProtection
 	IssueSetting       ProjectSettingIssueSetting
 	PullRequestSetting ProjectSettingPullRequestSetting
+	//NamedCommitQueries
+	//NamedCodeCommentQueries
+	//WebHooks
 }
 
 type ProjectSettingBranchProtection struct {
@@ -90,4 +101,37 @@ type ProjectSettingPullRequestSetting struct {
 type ProjectSettingPullRequestSettingNamedQueries struct {
 	Name  string `json:"name"`
 	Query string `json:"query"`
+}
+
+func (c *Client) GetSettingForProjectId(id int) (*ProjectSetting, error) {
+	body, err := c.httpRequest(fmt.Sprintf("projects/%d/setting", id), "GET", bytes.Buffer{})
+	if err != nil {
+		return nil, err
+	}
+
+	responseBody, _ := ioutil.ReadAll(body)
+	log.Printf("[DEBUG] received response with body %s", responseBody)
+
+	setting := ProjectSetting{}
+	err = json.NewDecoder(body).Decode(&setting)
+	if err != nil {
+		return nil, err
+	}
+
+	return &setting, nil
+}
+
+func (c *Client) UpdateProjectSetting(id int, setting ProjectSetting) (*ProjectSetting, error) {
+	buf := bytes.Buffer{}
+	err := json.NewEncoder(&buf).Encode(setting)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = c.httpRequest(fmt.Sprintf("projects/%d/setting", id), "PUT", buf)
+	if err != nil {
+		return nil,err
+	}
+
+	return &setting, nil
 }
