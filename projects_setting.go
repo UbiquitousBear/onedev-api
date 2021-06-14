@@ -55,10 +55,10 @@ type ProjectSettingIssueSettingNamedQuery struct {
 }
 
 type ProjectSettingBuildSetting struct {
-	ListParams               []string `json:"listParams"`
-	NamedQueries             []ProjectSettingBuildSettingNamedQuery `json:"namedQueries"`
-	JobSecrets               []ProjectSettingBuildSettingJobSecret `json:"jobSecrets"`
-	BuildPreservations       ProjectSettingBuildSettingBuildPreservation `json:"buildPreservations"`
+	ListParams               []string                                            `json:"listParams"`
+	NamedQueries             []ProjectSettingBuildSettingNamedQuery              `json:"namedQueries"`
+	JobSecrets               []ProjectSettingBuildSettingJobSecret               `json:"jobSecrets"`
+	BuildPreservations       ProjectSettingBuildSettingBuildPreservation         `json:"buildPreservations"`
 	DefaultFixedIssueFilters []ProjectSettingBuildSettingDefaultFixedIssueFilter `json:"defaultFixedIssueFilters"`
 }
 
@@ -75,7 +75,7 @@ type ProjectSettingBuildSettingJobSecret struct {
 
 type ProjectSettingBuildSettingBuildPreservation struct {
 	Condition string `json:"condition"`
-	Count     int `json:"count"`
+	Count     int    `json:"count"`
 }
 
 type ProjectSettingBuildSettingDefaultFixedIssueFilter struct {
