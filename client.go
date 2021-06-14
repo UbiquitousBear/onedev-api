@@ -8,7 +8,6 @@ import (
 	"net/http"
 )
 
-// Client holds all of the information required to connect to a server
 type Client struct {
 	hostname   string
 	user       string
@@ -37,8 +36,6 @@ func (c *Client) httpRequest(path, method string, body bytes.Buffer) (closer io.
 	default:
 		req.Header.Add("Content-Type", "application/json")
 	}
-
-
 
 	log.Printf("[DEBUG] sending request to %s with body %s", req.URL, req.Body)
 	resp, err := c.httpClient.Do(req)
