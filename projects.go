@@ -58,7 +58,14 @@ func (c *Client) NewProject(name string, description string, forkedFromId int, i
 	return item, nil
 }
 
-func (c *Client) UpdateProject(project Project) (*Project, error) {
+func (c *Client) UpdateProject(id int, name string, description string, forkedFromId int, issueManagementEnabled bool) (*Project, error) {
+	project := Project{
+		Id:                     id,
+		ForkedFromId:           forkedFromId,
+		Name:                   name,
+		Description:            description,
+		IssueManagementEnabled: issueManagementEnabled,
+	}
 	response, err := c.Update(nil, fmt.Sprintf("projects/%d", project.Id), project)
 	if err != nil {
 		return nil, err
