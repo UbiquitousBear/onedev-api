@@ -1,9 +1,10 @@
-package onedev_api
+package project
 
 import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"github.com/ubiquitousbear/onedev-api/service"
 )
 
 type Project struct {

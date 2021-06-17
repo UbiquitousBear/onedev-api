@@ -1,4 +1,4 @@
-package onedev_api
+package service
 
 import (
 	"bytes"
