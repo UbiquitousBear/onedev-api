@@ -1,13 +1,5 @@
 package onedev_api
 
-import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"log"
-)
-
 type ProjectSetting struct {
 	BranchProtections       []BranchProtections       `json:"branchProtections"`
 	TagProtections          []TagProtections          `json:"tagProtections"`
@@ -116,37 +108,4 @@ type WebHooks struct {
 	PostURL    string   `json:"postUrl"`
 	EventTypes []string `json:"eventTypes"`
 	Secret     string   `json:"secret"`
-}
-
-func (c *Client) GetSettingForProjectId(id int) (*ProjectSetting, error) {
-	body, err := c.httpRequest(fmt.Sprintf("projects/%d/setting", id), "GET", bytes.Buffer{})
-	if err != nil {
-		return nil, err
-	}
-
-	responseBody, _ := ioutil.ReadAll(body)
-	log.Printf("[DEBUG] received response with body %s", responseBody)
-
-	setting := ProjectSetting{}
-	err = json.NewDecoder(body).Decode(&setting)
-	if err != nil {
-		return nil, err
-	}
-
-	return &setting, nil
-}
-
-func (c *Client) UpdateProjectSetting(id int, setting ProjectSetting) (*ProjectSetting, error) {
-	buf := bytes.Buffer{}
-	err := json.NewEncoder(&buf).Encode(setting)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = c.httpRequest(fmt.Sprintf("projects/%d/setting", id), "POST", buf)
-	if err != nil {
-		return nil, err
-	}
-
-	return &setting, nil
 }

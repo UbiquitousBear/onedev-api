@@ -1,11 +1,8 @@
 package onedev_api
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"strconv"
 )
 
@@ -17,15 +14,13 @@ type Project struct {
 	IssueManagementEnabled bool   `json:"issueManagementEnabled"`
 }
 
-func (c *Client) GetAllProjects() (*map[string]Project, error) {
-	body, err := c.httpRequest("projects?offset=0&count=100", "GET", bytes.Buffer{})
+func (c *Client) GetAllProjects(offset int, maxResults int) (*map[string]Project, error) {
+	response, err := c.List(nil , "GET", fmt.Sprintf("projects?offset=%d&count=%d", offset, maxResults))
 	if err != nil {
 		return nil, err
 	}
-	responseBody, _ := ioutil.ReadAll(body)
-	log.Printf("[DEBUG] received response with body %s", responseBody)
 	projects := map[string]Project{}
-	err = json.NewDecoder(body).Decode(&projects)
+	err = json.Unmarshal(response.Data, &projects)
 	if err != nil {
 		return nil, err
 	}
@@ -33,55 +28,47 @@ func (c *Client) GetAllProjects() (*map[string]Project, error) {
 }
 
 func (c *Client) GetProject(id int) (*Project, error) {
-	body, err := c.httpRequest(fmt.Sprintf("projects/%d", id), "GET", bytes.Buffer{})
+	response, err := c.FindByID(nil, fmt.Sprintf("projects/%d", id))
 	if err != nil {
 		return nil, err
 	}
-	item := &Project{}
-	err = json.NewDecoder(body).Decode(item)
-	if err != nil {
-		return nil, err
-	}
-	return item, nil
-}
-
-func (c *Client) NewProject(project Project) (*Project, error) {
-	buf := bytes.Buffer{}
-	err := json.NewEncoder(&buf).Encode(project)
-	if err != nil {
-		return nil, err
-	}
-	body, err := c.httpRequest("projects", "POST", buf)
-	if err != nil {
-		return nil, err
-	}
-	if err != nil {
-		return nil, err
-	}
-	responseBody, _ := ioutil.ReadAll(body)
-	log.Printf("[DEBUG] received response with body %s", responseBody)
-	item := &Project{}
-	intResponseBody, _ := strconv.Atoi(string(responseBody))
-	item.Id = intResponseBody
-
-	return item, nil
-}
-
-func (c *Client) UpdateProject(project Project) (*Project, error) {
-	buf := bytes.Buffer{}
-	err := json.NewEncoder(&buf).Encode(project)
-	if err != nil {
-		return nil, err
-	}
-	_, err = c.httpRequest(fmt.Sprintf("projects/%d", project.Id), "POST", buf)
+	project := Project{}
+	err = json.Unmarshal(response.Data, &project)
 	if err != nil {
 		return nil, err
 	}
 	return &project, nil
 }
 
+func (c *Client) NewProject(name string, description string, forkedFromId int, issueManagementEnabled bool) (*Project, error) {
+	project := Project{
+		ForkedFromId:           forkedFromId,
+		Name:                   name,
+		Description:            description,
+		IssueManagementEnabled: issueManagementEnabled,
+	}
+	response, err := c.Create(nil, "projects", project)
+	if err != nil {
+		return nil, err
+	}
+	item := &Project{}
+	intResponseBody, _ := strconv.Atoi(string(response.Data))
+	item.Id = intResponseBody
+
+	return item, nil
+}
+
+func (c *Client) UpdateProject(project Project) (*Project, error) {
+	response, err := c.Update(nil, fmt.Sprintf("projects/%d", project.Id), project)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(response.Data, &project)
+	return &project, nil
+}
+
 func (c *Client) DeleteProject(id int) error {
-	_, err := c.httpRequest(fmt.Sprintf("projects/%d", id), "DELETE", bytes.Buffer{})
+	_, err := c.Delete(nil, fmt.Sprintf("projects/%d", id))
 	if err != nil {
 		return err
 	}
