@@ -15,7 +15,7 @@ type Project struct {
 	IssueManagementEnabled bool   `json:"issueManagementEnabled"`
 }
 
-func (c *Client) GetAllProjects(offset int, maxResults int) (*map[string]Project, error) {
+func (c *service.Client) GetAllProjects(offset int, maxResults int) (*map[string]Project, error) {
 	response, err := c.List(nil , "GET", fmt.Sprintf("projects?offset=%d&count=%d", offset, maxResults))
 	if err != nil {
 		return nil, err
