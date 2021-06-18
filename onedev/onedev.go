@@ -25,11 +25,6 @@ type service struct {
 	client *Client
 }
 
-type Response struct {
-	StatusCode int             `json:"code"`
-	Data       json.RawMessage `json:"data"`
-}
-
 func NewClient(baseUrl string) (*Client, error) {
 	baseEndpoint, err := url.Parse(baseUrl)
 	if err != nil {
