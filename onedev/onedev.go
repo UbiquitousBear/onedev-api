@@ -81,7 +81,7 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 }
 
 func (c *Client) Do(ctx context.Context, req *http.Request, decodeEntity interface{}) (*http.Response, error) {
-	log.Debugf("received request to url %decodeEntity with body %decodeEntity", req.URL.String(), req.Body)
+	log.Debugf("received request to url %v with body %v", req.URL.String(), req.Body)
 	resp, err := c.client.Do(req)
 	if err != nil {
 		// If we got an error, and the context has been canceled,
