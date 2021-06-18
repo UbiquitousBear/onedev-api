@@ -1,4 +1,4 @@
-package onedev_api
+package onedev
 
 type ProjectSetting struct {
 	BranchProtections       []BranchProtections       `json:"branchProtections"`

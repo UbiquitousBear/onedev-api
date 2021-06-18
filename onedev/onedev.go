@@ -19,7 +19,7 @@ type Client struct {
 	BaseURL   *url.URL
 	client    http.Client
 	UserAgent string
-
+	common service
 	Projects *ProjectService
 }
 
@@ -36,7 +36,11 @@ func NewClient(baseUrl string) (*Client, error) {
 		baseEndpoint.Path += "/"
 	}
 
-	return &Client{client: http.Client{}, BaseURL: baseEndpoint, UserAgent: userAgent}, nil
+	c := &Client{client: http.Client{}, BaseURL: baseEndpoint, UserAgent: userAgent}
+	c.common.client = c
+	c.Projects = (*ProjectService)(&c.common)
+
+	return c, nil
 }
 
 func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
@@ -76,7 +80,8 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 	return req, nil
 }
 
-func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*http.Response, error) {
+func (c *Client) Do(ctx context.Context, req *http.Request, decodeEntity interface{}) (*http.Response, error) {
+	log.Debugf("received request to url %decodeEntity with body %decodeEntity", req.URL.String(), req.Body)
 	resp, err := c.client.Do(req)
 	if err != nil {
 		// If we got an error, and the context has been canceled,
@@ -91,7 +96,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*htt
 	}
 	defer resp.Body.Close()
 
-	switch v := v.(type) {
+	switch v := decodeEntity.(type) {
 	case nil:
 	default:
 		decErr := json.NewDecoder(resp.Body).Decode(v)
@@ -112,3 +117,5 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*htt
 
 	return resp, nil
 }
+
+func Int(v int) *int { return &v }

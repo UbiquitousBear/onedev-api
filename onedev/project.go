@@ -18,14 +18,14 @@ type Project struct {
 	IssueManagementEnabled *bool   `json:"issueManagementEnabled"`
 }
 
-func (s *ProjectService) List(ctx context.Context, offset int, maxResults int) (*map[string]Project, *http.Response, error) {
+func (s *ProjectService) List(ctx context.Context, offset int, maxResults int) ([]*Project, *http.Response, error) {
 	u := fmt.Sprintf("projects?offset=%d&count=%d", offset, maxResults)
 	req, err := s.client.NewRequest("GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}
-	projects := &map[string]Project{}
-	resp, err := s.client.Do(ctx, req, projects)
+	var projects []*Project
+	resp, err := s.client.Do(ctx, req, &projects)
 	if err != nil {
 		return nil, nil, err
 	}

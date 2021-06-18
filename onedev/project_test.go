@@ -23,7 +23,7 @@ func TestProjectService_List(t *testing.T) {
 		t.Errorf("Projects.List returned error: %v", err)
 	}
 
-	want := []*Project{{Id: nil}, {Id: nil}}
+	want := []*Project{{Id: Int(1)}, {Id: Int(2)}}
 	if !cmp.Equal(got, want) {
 		t.Errorf("Repositories.List returned %+v, want %+v", got, want)
 	}
