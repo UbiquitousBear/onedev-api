@@ -3,6 +3,8 @@ package onedev
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"strconv"
 )
 
@@ -16,7 +18,7 @@ type Project struct {
 	IssueManagementEnabled *bool   `json:"issueManagementEnabled"`
 }
 
-func (s *ProjectService) List(ctx context.Context, offset int, maxResults int) (*map[string]Project, *Response, error) {
+func (s *ProjectService) List(ctx context.Context, offset int, maxResults int) (*map[string]Project, *http.Response, error) {
 	u := fmt.Sprintf("projects?offset=%d&count=%d", offset, maxResults)
 	req, err := s.client.NewRequest("GET", u, nil)
 	if err != nil {
@@ -31,7 +33,7 @@ func (s *ProjectService) List(ctx context.Context, offset int, maxResults int) (
 	return projects, resp, nil
 }
 
-func (s *ProjectService) Read(ctx context.Context, id int) (*Project, *Response, error) {
+func (s *ProjectService) Read(ctx context.Context, id int) (*Project, *http.Response, error) {
 	u := fmt.Sprintf("projects/%d", id)
 	req, err := s.client.NewRequest("GET", u, nil)
 	if err != nil {
@@ -47,7 +49,7 @@ func (s *ProjectService) Read(ctx context.Context, id int) (*Project, *Response,
 	return project, resp, nil
 }
 
-func (s *ProjectService) Create(ctx context.Context, project *Project) (*Project, *Response, error) {
+func (s *ProjectService) Create(ctx context.Context, project *Project) (*Project, *http.Response, error) {
 	u := fmt.Sprintf("projects")
 	req, err := s.client.NewRequest("POST", u, project)
 	if err != nil {
@@ -56,16 +58,28 @@ func (s *ProjectService) Create(ctx context.Context, project *Project) (*Project
 
 	resp, err := s.client.Do(ctx, req, nil)
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 
-	intResponseBody, _ := strconv.Atoi(string(resp.Data))
-	project.Id = &intResponseBody
+	if resp.StatusCode == http.StatusOK {
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, resp, err
+		}
+		bodyString := string(bodyBytes)
+		projectId, err := strconv.Atoi(bodyString)
+		if err != nil {
+			return nil, resp, err
+		}
+		project.Id = &projectId
+	} else {
+		return nil, resp, fmt.Errorf("recieved status not OK")
+	}
 
 	return project, resp, nil
 }
 
-func (s *ProjectService) Update(ctx context.Context, project *Project) (*Project, *Response, error) {
+func (s *ProjectService) Update(ctx context.Context, project *Project) (*Project, *http.Response, error) {
 	if project.Id == nil {
 		return nil, nil, fmt.Errorf("project has no id set")
 	}

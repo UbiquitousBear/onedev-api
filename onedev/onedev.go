@@ -5,8 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io"
-	"log"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -78,7 +79,7 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 	return req, nil
 }
 
-func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*Response, error) {
+func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*http.Response, error) {
 	resp, err := c.client.Do(req)
 	if err != nil {
 		// If we got an error, and the context has been canceled,
@@ -91,11 +92,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*Res
 
 		return nil, err
 	}
-
-	response, err := parseResponse(resp)
-	if err != nil {
-		return nil, err
-	}
+	defer resp.Body.Close()
 
 	switch v := v.(type) {
 	case nil:
@@ -107,21 +104,15 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*Res
 		if decErr != nil {
 			err = decErr
 		}
+
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	return response, nil
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	log.Debugf("received response with status %d, body: %s", resp.StatusCode, string(bodyBytes))
+
+	return resp, nil
 }
 
-// parseResponse parses a successful response
-func parseResponse(res *http.Response) (*Response, error) {
-	defer res.Body.Close()
-	response := &Response{
-		StatusCode: res.StatusCode,
-	}
-
-	if err := json.NewDecoder(res.Body).Decode(response); err != nil && err != io.EOF { // io.EOF means an empty body
-		return nil, err
-	}
-	log.Printf("[DEBUG] received response with body %s", res.Body)
-	return response, nil
-}
