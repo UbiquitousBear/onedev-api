@@ -29,8 +29,8 @@ type Response struct {
 	Data json.RawMessage `json:"data"`
 }
 
-func NewClient(baseUrl string, httpClient *http.Client) (*Client, error) {
-	baseEndpoint, err := url.Parse(baseURL)
+func NewClient(baseUrl string) (*Client, error) {
+	baseEndpoint, err := url.Parse(baseUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -38,10 +38,7 @@ func NewClient(baseUrl string, httpClient *http.Client) (*Client, error) {
 		baseEndpoint.Path += "/"
 	}
 
-	c := new(Client)
-	c.BaseURL = baseEndpoint
-
-	return c, nil
+	return &Client{client: http.Client{}, BaseURL: baseEndpoint}, nil
 }
 
 func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
