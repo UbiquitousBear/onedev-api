@@ -113,8 +113,3 @@ func parseResponse(res *http.Response) (*Response, error) {
 	log.Printf("[DEBUG] received response with body %s", res.Body)
 	return response, nil
 }
-
-// As decodes the response
-func (r *Response) As(v interface{}) error {
-	return json.Unmarshal(r.Data, v)
-}
