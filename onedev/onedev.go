@@ -13,8 +13,8 @@ import (
 )
 
 type Client struct {
-	BaseURL *url.URL
-	client http.Client
+	BaseURL   *url.URL
+	client    http.Client
 	UserAgent string
 
 	Projects *ProjectService
@@ -25,8 +25,8 @@ type service struct {
 }
 
 type Response struct {
-	Code int             `json:"code"`
-	Data json.RawMessage `json:"data"`
+	StatusCode int             `json:"code"`
+	Data       json.RawMessage `json:"data"`
 }
 
 func NewClient(baseUrl string) (*Client, error) {
@@ -116,7 +116,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*Res
 func parseResponse(res *http.Response) (*Response, error) {
 	defer res.Body.Close()
 	response := &Response{
-		Code: res.StatusCode,
+		StatusCode: res.StatusCode,
 	}
 
 	if err := json.NewDecoder(res.Body).Decode(response); err != nil && err != io.EOF { // io.EOF means an empty body
