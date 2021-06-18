@@ -13,6 +13,8 @@ import (
 	"strings"
 )
 
+const userAgent = "go-onedev-api"
+
 type Client struct {
 	BaseURL   *url.URL
 	client    http.Client
@@ -34,7 +36,7 @@ func NewClient(baseUrl string) (*Client, error) {
 		baseEndpoint.Path += "/"
 	}
 
-	return &Client{client: http.Client{}, BaseURL: baseEndpoint}, nil
+	return &Client{client: http.Client{}, BaseURL: baseEndpoint, UserAgent: userAgent}, nil
 }
 
 func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
@@ -110,4 +112,3 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*htt
 
 	return resp, nil
 }
-
