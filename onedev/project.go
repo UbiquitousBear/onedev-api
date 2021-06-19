@@ -92,7 +92,7 @@ func (s *ProjectService) Update(ctx context.Context, project *Project) (*Project
 
 func (s *ProjectService) Delete(ctx context.Context, id int) error {
 	u := fmt.Sprintf("projects/%d", id)
-	req, err := s.client.NewRequest("GET", u, nil)
+	req, err := s.client.NewRequest("DELETE", u, nil)
 	if err != nil {
 		return nil
 	}

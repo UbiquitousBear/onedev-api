@@ -107,3 +107,25 @@ func TestProjectService_Update(t *testing.T) {
 
 	assert.Equal(t, want, *got)
 }
+
+func TestProjectService_Delete(t *testing.T) {
+	// Arrange
+	client, mux, _, teardown := setup()
+	defer teardown()
+	id := 2
+
+	mux.HandleFunc("/projects/", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "DELETE")
+		fmt.Fprint(w, "")
+	})
+
+	ctx := context.Background()
+	err := client.Projects.Delete(ctx, id)
+
+	// Assert
+	if err != nil {
+		t.Errorf("Projects.Update returned error: %v", err)
+	}
+
+	assert.Nil(t, err)
+}
