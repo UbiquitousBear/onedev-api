@@ -27,6 +27,21 @@ type service struct {
 	client *Client
 }
 
+type errorResponse struct {
+	HTTPCode int    `json:"code"`
+	Message  string `json:"error_message"`
+}
+
+// Error complies with golang error interface
+func (r *errorResponse) Error() string {
+	return r.Message
+}
+
+// Code returns an HTTP response code
+func (r *errorResponse) Code() int {
+	return r.HTTPCode
+}
+
 func NewClient(baseUrl string) (*Client, error) {
 	baseEndpoint, err := url.Parse(baseUrl)
 	if err != nil {
@@ -96,26 +111,49 @@ func (c *Client) Do(ctx context.Context, req *http.Request, decodeEntity interfa
 	}
 	defer resp.Body.Close()
 
+	switch {
+	case resp.StatusCode >= 200 && resp.StatusCode <= 299:
+		err = parseResponse(resp, decodeEntity)
+	case resp.StatusCode >= 400 && resp.StatusCode <= 599:
+		return resp, parseError(resp)
+	default:
+		break
+	}
+
+
+
+	return resp, nil
+}
+
+func parseResponse(r *http.Response, decodeEntity interface{}) error {
 	switch v := decodeEntity.(type) {
 	case nil:
 	default:
-		decErr := json.NewDecoder(resp.Body).Decode(v)
+		decErr := json.NewDecoder(r.Body).Decode(v)
 		if decErr == io.EOF {
 			decErr = nil // ignore EOF errors caused by empty response body
 		}
 		if decErr != nil {
-			err = decErr
-		}
-
-		if err != nil {
-			return nil, err
+			return decErr
 		}
 	}
 
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	log.Debugf("received response with status %d, body: %s", resp.StatusCode, string(bodyBytes))
+	bodyBytes, err := ioutil.ReadAll(r.Body)
+	log.Debugf("received response with status %d, body: %s", r.StatusCode, string(bodyBytes))
 
-	return resp, nil
+	return err
+}
+
+func parseError(res *http.Response) error {
+	defer res.Body.Close()
+	response := &errorResponse{
+		HTTPCode: res.StatusCode,
+	}
+
+	if err := json.NewDecoder(res.Body).Decode(response); err != nil {
+		return err
+	}
+	return response
 }
 
 func Int(v int) *int { return &v }

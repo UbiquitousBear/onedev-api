@@ -70,7 +70,11 @@ func TestDo_httpError(t *testing.T) {
 
 	req, _ := client.NewRequest("GET", ".", nil)
 	ctx := context.Background()
-	resp, _ := client.Do(ctx, req, nil)
+	resp, err := client.Do(ctx, req, nil)
+
+	if err == nil {
+		t.Fatal("Expected HTTP 400 error, got no error.")
+	}
 
 	if resp.StatusCode != 400 {
 		t.Errorf("Expected HTTP 400 error, got %d status code.", resp.StatusCode)
