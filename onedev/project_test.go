@@ -82,3 +82,28 @@ func TestProjectService_Read(t *testing.T) {
 
 	assert.Equal(t, want, *got)
 }
+
+func TestProjectService_Update(t *testing.T) {
+	// Arrange
+	client, mux, _, teardown := setup()
+	defer teardown()
+	id := 2
+	want := Project{Id: Int(id), Name: String("foo"), Description: String("bar")}
+
+	mux.HandleFunc("/projects/", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "PUT")
+		buf := new(bytes.Buffer)
+		json.NewEncoder(buf).Encode(want)
+		fmt.Fprint(w, buf.String())
+	})
+
+	ctx := context.Background()
+	got, _, err := client.Projects.Update(ctx, &want)
+
+	// Assert
+	if err != nil {
+		t.Errorf("Projects.Update returned error: %v", err)
+	}
+
+	assert.Equal(t, want, *got)
+}
