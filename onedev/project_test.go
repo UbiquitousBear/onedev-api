@@ -71,7 +71,6 @@ func TestProjectService_Read(t *testing.T) {
 		fmt.Fprint(w, buf.String())
 	})
 
-
 	ctx := context.Background()
 	got, _, err := client.Projects.Read(ctx, id)
 

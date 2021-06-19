@@ -19,8 +19,8 @@ type Client struct {
 	BaseURL   *url.URL
 	client    http.Client
 	UserAgent string
-	common service
-	Projects *ProjectService
+	common    service
+	Projects  *ProjectService
 }
 
 type service struct {
@@ -161,5 +161,5 @@ func parseError(res *http.Response) error {
 	return response
 }
 
-func Int(v int) *int { return &v }
+func Int(v int) *int          { return &v }
 func String(v string) *string { return &v }

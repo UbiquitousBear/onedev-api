@@ -17,9 +17,9 @@ func setup() (client *Client, mux *http.ServeMux, serverURL string, teardown fun
 	apiHandler := http.NewServeMux()
 
 	server := httptest.NewServer(apiHandler)
-	apiHandler.Handle(baseURLPath + "/", http.StripPrefix(baseURLPath, mux))
+	apiHandler.Handle(baseURLPath+"/", http.StripPrefix(baseURLPath, mux))
 
-	baseEndpoint, _ := url.Parse(server.URL + baseURLPath +"/")
+	baseEndpoint, _ := url.Parse(server.URL + baseURLPath + "/")
 	client, _ = NewClient(baseEndpoint.String())
 
 	return client, mux, server.URL, server.Close
