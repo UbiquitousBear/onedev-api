@@ -1,9 +1,9 @@
 package onedev
 
 import (
+	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 )
@@ -56,25 +56,17 @@ func (s *ProjectService) Create(ctx context.Context, project *Project) (*Project
 		return nil, nil, err
 	}
 
-	resp, err := s.client.Do(ctx, req, nil)
+	buf := new(bytes.Buffer)
+	resp, err := s.client.Do(ctx, req, buf)
 	if err != nil {
 		return nil, resp, err
 	}
 
-	if resp.StatusCode == http.StatusOK {
-		bodyBytes, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, resp, err
-		}
-		bodyString := string(bodyBytes)
-		projectId, err := strconv.Atoi(bodyString)
-		if err != nil {
-			return nil, resp, err
-		}
-		project.Id = &projectId
-	} else {
-		return nil, resp, fmt.Errorf("recieved status not OK")
+	id, err := strconv.Atoi(buf.String())
+	if err != nil {
+		return nil, resp, err
 	}
+	project.Id = Int(id)
 
 	return project, resp, nil
 }

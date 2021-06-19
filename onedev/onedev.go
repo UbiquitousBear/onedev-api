@@ -42,6 +42,12 @@ func (r *errorResponse) Code() int {
 	return r.HTTPCode
 }
 
+// Response represents a parsed response
+type Response struct {
+	Code int             `json:"code"`
+	Data json.RawMessage `json:"data"`
+}
+
 func NewClient(baseUrl string) (*Client, error) {
 	baseEndpoint, err := url.Parse(baseUrl)
 	if err != nil {
@@ -110,7 +116,6 @@ func (c *Client) Do(ctx context.Context, req *http.Request, decodeEntity interfa
 		return nil, err
 	}
 	defer resp.Body.Close()
-
 	switch {
 	case resp.StatusCode >= 200 && resp.StatusCode <= 299:
 		err = parseResponse(resp, decodeEntity)
@@ -120,14 +125,14 @@ func (c *Client) Do(ctx context.Context, req *http.Request, decodeEntity interfa
 		break
 	}
 
-
-
 	return resp, nil
 }
 
 func parseResponse(r *http.Response, decodeEntity interface{}) error {
 	switch v := decodeEntity.(type) {
 	case nil:
+	case io.Writer:
+		_, _ = io.Copy(v, r.Body)
 	default:
 		decErr := json.NewDecoder(r.Body).Decode(v)
 		if decErr == io.EOF {
@@ -145,7 +150,6 @@ func parseResponse(r *http.Response, decodeEntity interface{}) error {
 }
 
 func parseError(res *http.Response) error {
-	defer res.Body.Close()
 	response := &errorResponse{
 		HTTPCode: res.StatusCode,
 	}
@@ -153,7 +157,9 @@ func parseError(res *http.Response) error {
 	if err := json.NewDecoder(res.Body).Decode(response); err != nil {
 		return err
 	}
+	log.Printf("received response with status %d, body: %s", res.StatusCode, res.Body)
 	return response
 }
 
 func Int(v int) *int { return &v }
+func String(v string) *string { return &v }
