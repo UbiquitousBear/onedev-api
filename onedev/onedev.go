@@ -5,12 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const userAgent = "go-onedev-api"
@@ -19,8 +20,8 @@ type Client struct {
 	BaseURL   *url.URL
 	client    http.Client
 	UserAgent string
-	common service
-	Projects *ProjectService
+	common    service
+	Projects  *ProjectService
 }
 
 type service struct {
