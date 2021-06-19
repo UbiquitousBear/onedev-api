@@ -3,9 +3,10 @@ package onedev
 import (
 	"context"
 	"fmt"
-	"github.com/google/go-cmp/cmp"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestProjectService_List(t *testing.T) {
@@ -19,12 +20,8 @@ func TestProjectService_List(t *testing.T) {
 
 	ctx := context.Background()
 	got, _, err := client.Projects.List(ctx, 0, 100)
-	if err != nil {
-		t.Errorf("Projects.List returned error: %v", err)
-	}
+	assert.NoError(t, err)
 
-	want := []*Project{{Id: Int(1)}, {Id: Int(2)}}
-	if !cmp.Equal(got, want) {
-		t.Errorf("Repositories.List returned %+v, want %+v", got, want)
-	}
+	want := []Project{{Id: Int(1)}, {Id: Int(2)}}
+	assert.Equal(t, &want, got)
 }
