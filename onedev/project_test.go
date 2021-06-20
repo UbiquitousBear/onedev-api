@@ -71,6 +71,7 @@ func TestProjectService_Read(t *testing.T) {
 		fmt.Fprint(w, buf.String())
 	})
 
+	// Act
 	ctx := context.Background()
 	got, _, err := client.Projects.Read(ctx, id)
 
@@ -96,6 +97,7 @@ func TestProjectService_Update(t *testing.T) {
 		fmt.Fprint(w, buf.String())
 	})
 
+	// Act
 	ctx := context.Background()
 	got, _, err := client.Projects.Update(ctx, &want)
 
@@ -118,6 +120,7 @@ func TestProjectService_Delete(t *testing.T) {
 		fmt.Fprint(w, "")
 	})
 
+	// Act
 	ctx := context.Background()
 	err := client.Projects.Delete(ctx, id)
 
